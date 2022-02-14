@@ -1,0 +1,36 @@
+version: '1'
+services:
+  guitar-shop-postgres:
+    image: postgis/postgis:12-3.1-alpine
+    container_name: guitar-shop-postgres
+    hostname: guitar-shop-postgres
+    restart: unless-stopped
+    networks:
+      - network
+    ports:
+      - 5432:5432
+    volumes:
+      - /var/lib/postgresql/data
+      # Scripts in /docker-entrypoint-initdb.d are only run
+      # if you start the container with a data directory that is empty.
+      # Any pre-existing database will be left untouched on container startup.
+      # See "Initialization scripts" at https://hub.docker.com/_/postgres
+      - ./db/scripts/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+    environment:
+      # Uses default user and database names, POSTGRES_PASSWORD is required.
+      # See "Environment Variables" at https://hub.docker.com/_/postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${PGDATABASE}
+      PGSCHEMA: ${PGSCHEMA}
+      PGUSER_GUITAR_SHOP_OWNER: ${PGUSER_GUITAR_SHOP_OWNER}
+      PGPASSWORD_GUITAR_SHOP_OWNER: ${PGPASSWORD_GUITAR_SHOP_OWNER}
+      PGUSER_GUITAR_SHOP: ${PGUSER_GUITAR_SHOP}
+      PGPASSWORD_GUITAR_SHOP: ${PGPASSWORD_GUITAR_SHOP}
+    command:
+      - 'postgres'
+      - '-c'
+      - 'wal_level=logical'
+      - '-c'
+      - 'max_wal_senders=1'
+      - '-c'
+      - 'max_replication_slots=1'

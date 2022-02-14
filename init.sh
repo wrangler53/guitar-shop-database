@@ -1,0 +1,2 @@
+docker compose down --remove-orphans && docker volume prune --force
+docker compose --file docker-compose.yml --file docker/docker-compose.postgres.yml --file docker/docker-compose.flyway.yml up --build --detach

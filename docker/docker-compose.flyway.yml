@@ -1,0 +1,30 @@
+version: '1'
+services:
+  guitar-shop-flyway:
+    image: flyway/flyway:8-alpine
+    container_name: guitar-shop-flyway
+    hostname: guitar-shop-flyway
+    networks:
+      - network
+    volumes:
+      - ./db/migrations:/flyway/sql
+    environment:
+      # Dockerfile runs migrations immediately,
+      # but docker-compose should wait for database to become available,
+      # hence FLYWAY_CONNECT_RETRIES is required.
+      # See "Environment Variables" at https://flywaydb.org/documentation/envvars
+      FLYWAY_CONNECT_RETRIES: 60
+      FLYWAY_URL: jdbc:postgresql://guitar-shop-postgres/${PGDATABASE}
+      FLYWAY_USER: ${PGUSER_GUITAR_SHOP}
+      FLYWAY_PASSWORD: ${PGPASSWORD_GUITAR_SHOP}
+      FLYWAY_SCHEMAS: ${PGSCHEMA}
+      FLYWAY_DEFAULT_SCHEMA: ${PGSCHEMA}
+      FLYWAY_TABLE: schema_version
+      FLYWAY_BASELINE_ON_MIGRATE: 'true'
+      FLYWAY_IGNORE_MISSING_MIGRATIONS: 'true'
+      FLYWAY_PLACEHOLDERS_ENVIRONMENT: ${ENVIRONMENT}
+      FLYWAY_PLACEHOLDERS_PGUSER: ${PGUSER_GUITAR_SHOP}
+      FLYWAY_PLACEHOLDERS_PGPASSWORD: ${PGPASSWORD_GUITAR_SHOP}
+    command: migrate
+    depends_on:
+      - guitar-shop-postgres
