@@ -20,6 +20,13 @@ select AVG(price::numeric) from product;
 select model from guitar_model 
 	where manufacturer_id in (select id from guitar_manufacturer where name = 'Yamaha' or name = 'Gibson');
 
+-- Get all Gibson guitar models and create gibson_guitars view
+create view gibson_guitars as 
+	select name as manufacturer_name, model as guitar_model
+	from guitar_model 
+	join guitar_manufacturer on guitar_model.manufacturer_id = guitar_manufacturer.id
+	where manufacturer_id in (select id from guitar_manufacturer where name = 'Gibson');
+
 -- Get all Yamaha guitar models that are being sold
 select distinct on (guitar_model.id)
 	product.id as product_id, guitar_model.model as guitar_model_name, guitar_manufacturer.name as manufaturer 
